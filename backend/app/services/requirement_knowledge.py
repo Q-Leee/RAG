@@ -356,9 +356,45 @@ def corpus_skill_floor(req_text: str, resume_text: str) -> float:
             re.compile(r"\b(python|javascript|typescript|java)\b", re.I),
             0.52,
         ),
+        (
+            re.compile(r"\b(react|frontend|front[- ]end|web developer)\b", re.I),
+            re.compile(r"\b(react|react native|frontend|front[- ]end)\b", re.I),
+            0.55,
+        ),
+        (
+            re.compile(r"\b(agile|scrum|ci/cd|cicd|project management|sprint)\b", re.I),
+            re.compile(r"\b(agile|scrum|github actions|jenkins|gitlab|ci/cd|cicd)\b", re.I),
+            0.48,
+        ),
+        (
+            re.compile(r"\b(node\.?js|nest\.?js|express\.?js)\b", re.I),
+            re.compile(r"\b(node\.?js|nest\.?js|express\.?js)\b", re.I),
+            0.52,
+        ),
+        (
+            re.compile(r"\b(java|spring\s*boot)\b", re.I),
+            re.compile(r"\b(java|spring\s*boot)\b", re.I),
+            0.48,
+        ),
     ]
     floor = 0.0
     for req_pat, res_pat, score in checks:
         if req_pat.search(req) and res_pat.search(resume):
             floor = max(floor, score)
+
+    # Cap multi-stack / multi-technology requirements if candidate only has one part of it
+    if floor > 0:
+        stacks = [
+            (re.compile(r"\b(react|reactjs)\b", re.I), "React"),
+            (re.compile(r"\b(next\.?js)\b", re.I), "Next.js"),
+            (re.compile(r"\b(node\.?js|nest\.?js|express\.?js)\b", re.I), "Node.js"),
+            (re.compile(r"\b(java|spring\s*boot)\b", re.I), "Java"),
+            (re.compile(r"\b(python)\b", re.I), "Python"),
+        ]
+        req_stacks = [s for s in stacks if s[0].search(req)]
+        if len(req_stacks) >= 2:
+            missing = [s for s in req_stacks if not s[0].search(resume)]
+            if missing:
+                floor = min(floor, 0.38)
+
     return floor
