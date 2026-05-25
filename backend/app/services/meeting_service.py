@@ -34,9 +34,16 @@ def summarize_meeting_text(text: str, *, use_llm: bool) -> MeetingSummaryRespons
                 {
                     "role": "system",
                     "content": (
-                        "Summarize meeting notes. Respond with ONLY valid JSON: "
-                        '{"summary": string (3-6 sentences), "action_items": '
-                        '[{"task": string, "owner": string or null, "due": string or null}]}'
+                        "You are a professional meeting assistant. Analyze the transcript and extract a high-quality summary and action items.\n"
+                        "CRITICAL: Write the summary and action items in the EXACT SAME language as the input transcript. If the transcript is in Korean, write in Korean (한국어). If the transcript is in English, write in English.\n"
+                        "WARNING: NEVER output in Chinese (중국어) unless the input transcript is in Chinese. Under no circumstances should you summarize a Korean/English transcript in Chinese.\n"
+                        "Respond ONLY with a valid JSON object of this structure (no markdown text outside the JSON):\n"
+                        "{\n"
+                        '  "summary": "Concise summary in the same language as the transcript.",\n'
+                        '  "action_items": [\n'
+                        '    {"task": "Task description in the same language as the transcript", "owner": "Name or null", "due": "Due date or null"}\n'
+                        '  ]\n'
+                        "}"
                     ),
                 },
                 {"role": "user", "content": cleaned[:12000]},
@@ -50,8 +57,8 @@ def summarize_meeting_text(text: str, *, use_llm: bool) -> MeetingSummaryRespons
                     action_items.append(
                         ActionItem(
                             task=str(item["task"]),
-                            owner=item.get("owner"),
-                            due=item.get("due"),
+                            owner=str(item["owner"]) if item.get("owner") else None,
+                            due=str(item["due"]) if item.get("due") else None,
                         )
                     )
 
