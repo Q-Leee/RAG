@@ -48,6 +48,18 @@ class Settings(BaseSettings):
     ollama_chat_model: str = "llama3.2:3b"
     llm_enabled: bool = True
 
+    # ── Meeting summarization ──────────────────────────────────────────
+    # Characters per chunk fed to the LLM in a single call.
+    # Increase if your model supports a larger context window.
+    meeting_chunk_chars: int = 6000
+    # Overlap between consecutive chunks to preserve context at boundaries.
+    meeting_chunk_overlap_chars: int = 400
+    # Temperature for the meeting LLM calls (0.0 = deterministic JSON output).
+    meeting_temperature: float = 0.0
+    # Optional: override the model used specifically for meeting summarization.
+    # Leave empty to reuse ollama_chat_model.
+    meeting_chat_model: str = ""
+
     jwt_secret: str = "change-me-in-production-use-env"
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60 * 24 * 7

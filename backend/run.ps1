@@ -17,5 +17,6 @@ if (-not (Test-Path $venvUvicorn)) {
     & $venvPython -m pip install -r requirements.txt
 }
 
-Write-Host "Starting backend at http://127.0.0.1:8000 (venv Python)" -ForegroundColor Green
-& $venvUvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+Write-Host "Starting backend at http://127.0.0.1:8001 (venv Python)" -ForegroundColor Green
+Write-Host "Port 8001 avoids conflict if another app uses 8000." -ForegroundColor DarkGray
+& $venvUvicorn app.main:app --reload --host 127.0.0.1 --port 8001
